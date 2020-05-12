@@ -1,0 +1,296 @@
+//yert
+import java.sql.*;
+import java.util.*;
+
+public class datafill {
+    public static void main(String[] args) {
+	try(
+	    Connection con=DriverManager.getConnection("jdbc:oracle:thin:@edgar1.cse.lehigh.edu:1521:cse241", "sps222", "MSFTstockup777^");
+	    Statement s=con.createStatement();
+	    ) {
+		System.out.println("Connection successfully made");
+	String query;
+	String query2;
+	ResultSet res;
+	Random rand = new Random();
+	for(int j = 0; j < 200; j++){
+	    Person p = new Person();
+	    int i = p.customer_id;
+	    //customer creation
+	    query = "insert into customer values (" + i + ", '" + p.name + "', '" + p.phone + "', '" + p.address + "', sysdate)";
+	    //System.out.println(query);
+	    res = s.executeQuery(query);
+	    //account creation
+	    for(int k = 0; k < p.accounts.length; k++){
+		int id = p.accounts[k].account_id;
+		int b = p.accounts[k].account_balance;
+	    query = "insert into bank_account values (" + id + ", " + b + ", sysdate)";
+	    res = s.executeQuery(query);
+	    System.out.println("Check");
+	    if(k == 1){
+		int min = -20;
+		query2 = "insert into checking values (" + id + ", " + min + ")";
+		res = s.executeQuery(query2);
+	    }else{
+		int interest = 1;
+		query2 = "insert into savings values (" + id + ", " + interest + ")";
+		res = s.executeQuery(query2);
+	    }
+	    query = "insert into cus_accounts values (" + i + ", " + id + ")";
+	    res = s.executeQuery(query);
+	    }
+	    //loan creation
+	    for(int k = 0; k < p.accounts.length; k++){
+		int id = p.loans[k].loan_id;
+		int in = p.loans[k].loan_interest;
+		int o = p.loans[k].amount_owed;
+		int mon = p.loans[k].monthly;
+		query = "insert into loan values (" + id + ", " + in + ", " + o + ", " + mon + ", sysdate)";
+		res = s.executeQuery(query);
+		if(k == 1){
+		    query2 = "insert into mortgage values (" + id + ", '" + p.address + "')";
+		    res = s.executeQuery(query2);
+		}
+		query = "insert into debt values (" + id + ", " + i + ")";
+		res = s.executeQuery(query);
+	    }
+	    //card creatioon
+	    for(int k = 0; k < p.cards.length; k++){
+		String num = p.cards[k].card_number;
+		int sec = p.cards[k].security;
+		query = "insert into card values ('" + num + "', TO_DATE(TRUNC(DBMS_RANDOM.VALUE(TO_CHAR(DATE '2021-01-01','J') ,TO_CHAR(DATE '2025-12-31','J'))),'J'), " + sec + ", sysdate)";
+		res = s.executeQuery(query);
+		if(p.cards[k].type == 1){
+		    int in = p.cards[k].credit_interest;
+		    int lim = p.cards[k].limit;
+		    query2 = "insert into credit_card values ('" + num + "', " + in + ", " + lim + ", 0, 0, sysdate)";
+		    res = s.executeQuery(query2);
+		}else{
+		    query2 = "insert into debit_card values ('" + num + "')";
+		    res = s.executeQuery(query2);
+		    query2 = "insert into debit values (" + p.accounts[1].account_id + ", '" + num + "')";
+		    res = s.executeQuery(query2);
+		}
+		query = "insert into cus_card values (" + p.customer_id + ", '" + num + "')";
+		res = s.executeQuery(query);
+	    }
+	    //transaction creation
+	    for(int k = 0; k < p.trans.length; k++){
+		int id = p.trans[k].transaction_id;
+		int a = p.trans[k].amount;
+		query = "insert into transaction values (" + id + ", " + a + ", CURRENT_TIMESTAMP)"; 
+		res = s.executeQuery(query);
+		if(k < 3){
+		    int vid = p.trans[k].vendor_id;
+		    String nam = p.trans[k].vendor_name;
+		    query2 = "insert into external values (" + id + ", " + vid + ", '" + nam + "')";
+		    res = s.executeQuery(query2);
+		    int pick = rand.nextInt(2);
+		    query = "insert into purchase values (" + id + ", '" + p.cards[pick].card_number + "')";
+		    res = s.executeQuery(query);
+		}else if(k < 5 && k >= 3){
+		    query2 = "insert into payment values (" + id + ")";
+		    res = s.executeQuery(query2);
+		    int pick = rand.nextInt(2);
+		    query2 = "insert into bank_payment values (" + id + ", " + p.accounts[pick].account_id + ")";
+		    res = s.executeQuery(query2);
+		    if(k == 3){
+			a = p.loans[pick].monthly;
+			query = "update transaction set amount = " + a + " where transaction_id = " + id;
+			res = s.executeQuery(query);
+			query2 = "insert into loan_payment values (" + id + ", " + p.loans[pick].loan_id + ")";
+			res = s.executeQuery(query2);
+		    }else{
+			a = p.trans[0].amount + p.trans[1].amount + p.trans[2].amount;
+			query = "update transaction set amount = " + a + " where transaction_id = " + id;
+			res = s.executeQuery(query);
+			query2 = "insert into credit_payment values (" + id + ", '" + p.cards[1].card_number + "')";
+			res = s.executeQuery(query2);
+		    } 
+		}else if(k < 7 && k >= 5){
+		    int bid = p.trans[k].branch_id;
+		    query2 = "insert into bank_transaction values (" + id + ", " + bid + ")";
+		    res = s.executeQuery(query2);
+		    int pick = rand.nextInt(2);
+		    query2 = "insert into withdrawal values (" + id + ", " + p.accounts[pick].account_id + ")";
+		    res = s.executeQuery(query2);
+		}else{
+		    int tid = p.trans[k].teller_id;
+		    query2 = "insert into teller values (" + id + ", " + tid + ")";
+		    res = s.executeQuery(query2);
+                    int pick = rand.nextInt(2);
+		    if(a > 0){
+                    query2 = "insert into deposit values (" + id + ", " + p.accounts[pick].account_id + ")";
+		    res = s.executeQuery(query2);
+		    }else{
+		    query2 = "insert into withdrawal values (" + id + ", " + p.accounts[pick].account_id + ")";
+		    res = s.executeQuery(query2);
+		    }
+		}
+	    }
+	}
+	s.close();
+	con.close();
+	System.out.println("Connection close");
+	    }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+}
+
+class Person{
+    public Random rand = new Random();
+
+    public static int tot_customer_id = 1000;
+    public static int customer_id;
+    public String name;
+    public String phone;
+    public String address;
+    
+    public Account[] accounts;
+    
+    public Loan [] loans;
+
+    public Card[] cards;
+    
+    public Transaction [] trans;
+
+    public Person (){
+	this.customer_id = tot_customer_id;
+	
+	String [] names = { "Adam", "Alex", "Aaron", "Ben", "Carl", "Dan", "David", "Edward", "Fred", "Frank", "George", "Hal", "Hank", "Ike", "John", "Jack", "Joe", "Larry", "Monte", "Matthew", "Mark", "Nathan", "Otto",
+			    "Paul", "Peter", "Roger", "Roger", "Steve", "Thomas", "Tim", "Ty", "Victor", "Walter", "Anderson", "Ashwoon", "Aikin", "Bateman", "Bongard", "Bowers", "Boyd", "Cannon", 
+			    "Cast", "Deitz", "Dewalt", "Ebner", "Frick", "Hancock", "Haworth", "Hesch", "Hoffman", "Kassing", "Knutson", "Lawless", "Lawicki", "Mccord", "McCormack", "Miller", "Myers", "Nugent", "Ortiz", 
+			    "Orwig", "Ory", "Paiser", "Pak", "Pettigrew", "Quinn", "Quizoz", "Ramachandran", "Resnick", "Sagar", "Schickowski", "Schiebel", "Sellon", "Severson", "Shaffer", "Solberg", "Soloman", 
+			    "Sonderling", "Soukup", "Soulis", "Stahl", "Sweeney", "Tandy", "Trebil", "Trusela", "Trussel", "Turco", "Uddin","Uflan", "Ulrich", "Upson", "Vader", "Vail", "Valente", "Van Zandt",
+			    "Vanderpoel", "Ventotla", "Vogal", "Wagle", "Wagner", "Wakefield", "Weinstein", "Weiss", "Woo", "Yang", "Yates", "Yocum", "Zeaser", "Zeller", "Ziegler", "Bauer",
+			    "Baxster", "Casal", "Cataldi", "Caswell", "Celedon", "Chambers", "Chapman"};
+
+	String [] adds = {"634 Valley Farms Court  Huntington, NY 11743", "60 Galvin Dr.Howell, NJ 07731", "596 Wall Lane Lititz, PA 17543", "866 Bear Hill Street Cambridge, MA 02138", "286 S. 4th Ave. Waynesboro, PA 17268",
+			  "42 East Princess Court Ellenwood, GA 30294", "611 Shirley Ave. McLean, VA 22101", "837 Ann Dr. Land O Lakes, FL 34639", "83 Penn Street Elkridge, MD 21075", "2 Van Dyke Street Victoria, TX 77904",
+			  "642 Lyme St. Prattville, AL 36067", "36 Madison Circle Danvers, MA 01923", "554 Joy Ridge St. Collegeville, PA 19426", "536 Old York St. Norwood, MA 02062", "9382 Bank Ave. New Castle, PA 16101",
+			  "8621 Wayne St. Deerfield, IL 60015", "7606 North Magnolia Drive Kennesaw, GA 30144", "869 North Temple St. East Orange, NJ 07017", "7 South Mammoth St. Alabaster, AL 35007", "2 High Lane Parkville, MD 21234",
+			  "653 NW. Newport St. Piscataway, NJ 08854", "9096 Alton Drive Hampton, VA 23666", "7331 Goldfield Street Milton, MA 02186", "53 N. Catherine Dr. Round Lake, IL 60073",
+			  "24 Talbot Lane North Ridgeville, OH 44039", "88 James Street Zion, IL 60099"};
+
+	String [] phone = {"9280005067", "9037882990", "9258608002","0360163538","4087865617","4547268011","5684481734","7184974317","7454522366","1599241404","1566179326","1065081678",
+			   "6409250486","1162475352","5345993168","7588600337","3284717596","1459711617","3164403770","0272098218","9046859768","9277915344","4442510732","5570787319",
+			   "8003793449","2777575483","1533426253","6975184140","7642929014","6559549832","6746634453","3399903101","0791352892","3788981772","1241564668","9012423588","4365017247",
+			   "6911475200","7410650605","7181894986","2874757524","6290667445","9691252183","2859171140","6062419052","9125357210","9154246357","4950890195","8389344313", "8239149658"};
+
+	this.name = names[rand.nextInt(names.length)];
+	this.phone = phone[rand.nextInt(phone.length)];
+	this.address = adds[rand.nextInt(adds.length)];
+	accounts = new Account[2];
+	for(int i = 0; i < accounts.length; i++){
+	    accounts[i] = new Account(i);
+	}
+
+	loans = new Loan[2];
+	for(int i = 0; i < loans.length; i++){
+            loans [i] = new Loan(i);
+	}
+	
+	cards = new Card[2];
+	for(int i = 0; i < cards.length; i++){
+	    cards[i] = new Card(i);
+	}
+
+	trans = new Transaction[10];
+	for(int i = 0; i < trans.length; i++){
+            trans[i]= new Transaction(i);
+       }
+	tot_customer_id++;
+    }
+}
+
+class Account{
+    public Random rand = new Random();
+    public static int tot_account_id = 1000;
+    public int account_id;
+    public int account_balance;
+    public int type;
+    
+    public Account(int n){
+	this.account_id = tot_account_id;
+	this.account_balance = rand.nextInt(250000); 
+	this.type = n;
+	tot_account_id++;
+    } 
+}
+
+class Loan{
+    public Random rand = new Random();
+    public static int tot_loan_id = 1000;
+    public int loan_id;
+    public int loan_interest;
+    public int amount_owed;
+    public int monthly;
+    public int type;
+    
+    public Loan(int n){
+	this.loan_id = tot_loan_id;
+	this.loan_interest = rand.nextInt(7) + 3;
+	this.amount_owed = rand.nextInt(1000) * 20000;
+	this.monthly = amount_owed / 100;
+	this.type = n;
+	tot_loan_id++;
+    }
+}
+
+class Card{
+    public Random rand = new Random();
+    public String card_number;
+    public int security;
+    public int credit_interest;
+    public int limit;
+    public int type;
+
+    public Card (int n){
+	int num = rand.nextInt(9)+1;
+	this.card_number = "";
+	card_number = this.card_number + num;
+	for(int j = 0; j < 15; j++){
+	    num = rand.nextInt(10);
+	    this.card_number = this.card_number + num;
+	}
+	this.security = rand.nextInt(899) + 100;
+	this.credit_interest = rand.nextInt(18) + 12;
+	this.limit = (rand.nextInt(20) + 1) * 500;
+	this.type = n;
+    }
+}
+
+class Transaction{
+    public Random rand = new Random();
+    public static int tot_transaction_id = 1000;
+    public  int transaction_id;
+    public int amount;
+    public int branch_id; 
+    public int teller_id; 
+    public String vendor_name; 
+    public int vendor_id;  
+
+    public Transaction (int n){
+	this.transaction_id = tot_transaction_id;
+	if(n < 3){ //external
+	    this.amount = rand.nextInt(400);
+	    String [] vendors = {"ABC Co.", "Google", "Apple", "Microsoft", "Micron", "Skyworks", "Slack", "Oracle", "Facebook", "Stripe", "Palantir", "Intel", "Carnival", "Wynn", "Square", "Preff", "T-Mobile", 
+			      "PwC", "KPMG", "Lyft", "Uber"};
+	    int ran = rand.nextInt(vendors.length);
+	    this.vendor_id = ran;
+	    this.vendor_name = vendors[ran];
+	}else if(n < 5 && n >= 3){ //payment{
+	    this.amount = -1;
+	}else if(n < 8 && n >= 5){ //branch trans
+	    this.amount = rand.nextInt(5000) * -1;
+	    this.branch_id = rand.nextInt(20);
+	}else{ // teller trans
+	    this.amount = rand.nextInt(10000) - 5000;
+	    this.teller_id = rand.nextInt(20);
+	}
+	tot_transaction_id++;
+    }
+}
+
