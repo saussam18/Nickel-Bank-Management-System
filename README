@@ -1,0 +1,200 @@
+Hello Reader,
+
+I will present to you my CSE 341 Project. This README will serve as your guide of how to test for this project thoroughly as well as give most of my assumptions for the different parts of the project and any provide context for future development plans based on what I see in the current database design and the current implementation of the interface.
+
+Before I start, I just wanted to give a quick thanks Professor Korth for creating this course. This was the first computer science course I came into with no prior knowledge and he did a great job teaching the material and getting myself up to speed about database. Although this was the most challenging course I have taken so far at Lehigh, I also think its the course I have learned the most in ever and am greatly thankful for that. After this course I am way more interested in a database background and am super excited that I found an area of computer science I really enjoy. Now to see if something else beats it :)
+
+Directory Walkthrough
+Top directory: sps222sausville
+- Here is where this README is located, along with sps222.jar which runs the program, Manifest.txt which created the jar file, and finally where ojdbc8.jar is located
+- There is another directory which includes my the .java files otherwise known as my code that is called sps222
+  - The files inluded here are
+  - Main.java - The main class that is where everything connects up
+  - AccountDorW.java - The class that implements interface 2. Account Deposit and Withdrawal
+  - Account.java - The class that implements the account creation process otherwise known as interface 4
+  - Loan.java - The class that implements the loan creation process otherwise known as interface 6
+  - Purcahse.java - The class that implements the purchase on debit and credit cards otherwise known as interface 7
+  - Transaction.java - A supporting class that helps simplfy when transaction data is pulled and created in interface 2 and 7
+  - GeneralMethods.java - A supporting class the carries the load of exception handling, gettting input, running all the database transactions and a couple of other things throughout the entire interface
+- Lastly, there is a final directory that contains my datafill code called dataFill. It is important to note that this code is probably will not complelty work due to slightly changing a couple names and things in my design
+  - References for the data fill are as follows:
+  - For the names, I stole the base java Array from a github java project and corrected a few, Link: https://gist.github.com/benhorgen/4494868
+  - For addresses, I got the generation from this random address generator, Link: https://www.randomlists.com/random-addresses
+  - For vendors, I created those by what stuff I had around my room and what stocks I own in my portfolio
+  - For phone numbers, I created those from a random generator, Link: https://fakenumber.org/
+  - All the other random variables I created myself or just with a random number generator
+  
+
+COMPLETE WALKTHROUGH
+
+Read before start: If this is a part you can attempt to break with bad input, it will start with a “B -“ so you know that you should try and put in some nasty input. There should be no exception thrown at any point in this code but instead should print out a nice message to the user. If you figure out how to throw an exception that I did not catch then I applaud you for your effort and am sorry my code did not catch the exception.
+
+First Steps
+1. Enter in your oracle ID and password. If it does not work please make sure the credentials are correct and try again
+2. You will then be greeted with the main interface. There you will see your Teller/ATM ID number. Remember this for potential future transactions
+3. First, type in the numbers 1, 3, 5. You will see that it will say that this interface is not yet implemented and will return you to main menu
+4. B - Next, try type in a whole assortment of bad input, is should not break but just print in an incorrect input please try again message.
+Account Deposit and Withdrawal
+1. Now we are going to try out an actual interface, please type in 2 to enter the account deposit and withdrawal interface
+2. B - You are then asked to enter in whether your transaction is a withdrawal or deposit, or if you want to quit. For this transaction type W for withdrawal
+3. B - You are then asked if you are making this transaction at a Teller or ATM. Type A for ATM this time. This prompt is only asks for a withdrawal as a deposit has to be at a Teller
+4. B - Then you declare what account you are making this on, whether it’s a savings or checking account. For this, type in a S for savings
+5. B - Then you are asked to input your customer ID, for this type in 1001
+6. B - It should then list the following accounts along with the balance of each account. You then should enter one of the account ID’s listed above
+7. B - It will then ask for your ATM/Teller ID number depending on what you chose before. This can be any number between 1-20
+8. B - Then it will ask for the transaction amount. In this case, since we did a withdrawal, you would input a negative number. If you did a deposit it should be positive
+9. If you put in not the desired value or a number that is way to large, it will reject your amount and kick you back to main menu
+10. You can then do the reverse steps choosing different options and trying to break the database. After this is done it should return you to main menu
+Open a new Account
+1. Now we are going to try out the create account interface. Please type in 4 to enter this interface
+2. B - It firsts asks if you want to create a checking or savings account. Choose either option here there, as it progresses the same way
+3. It then prints out a message with information about the type of account you have chosen and some options if you want the details to change a little
+4. B - It then asks you for your customer ID, here you can type in any valid ID between 1000 and 1199 but for simplicity sake you can type in 1001
+5. It then prints out your new account number and asks you to remember it. In actuality as you saw before in the deposit and withdrawal, it will still bring up the account info if you do not remember
+6. B - It then asks for your initial deposit value, which has to be positive and cannot be too much otherwise it will kick you back to main menu
+7. Then it will either succeed or reject the value based on what it was, and then will return you to main menu
+Take out a new Loan
+1. Now we are going to try out the take out a new loan interface, please type in 6 to enter this interface
+2. B- The first thing it prompts is whether or not the loan you are creating is a mortgage or a general loan. For this select a Mortgage
+3. Next it asks you to input an address for which you are asking for the mortgage. This is just a single string so make sure it is correct for what you want
+4. B - In then asks for a customer ID. You can put in any valid ID between 1000 and 1199, but for simplicity sake you can type 1001
+5. B - Finally, you enter in the amount you need to be loaned. If this is a negative number, under 1000 or way to large, it will kick you back to main menu without a loan
+6. B - Next, it asks for you credit score so it can calculate your interest rate. You can enter in any number above 0 but be warned as it will be ‘verified’ by a credit agency later and it could not be effective
+7. B - Last step is it gives you the projected interest rate, then asks you as the user if you want to accept the loan or decline it. Choose however you feel for this option. It will then send you back to main menu
+Purchase
+1. Now we are trying the purchase interface. Please type in 7 to enter the interface
+2. B- First it asks if you are using a debit or credit card, so type in your desired card for the purchase. Don’t worry if you mix it up, our system will detect if you may have chosen one of the opposite type
+3. Here we are going to list the card information for an example for each card as the card information is all that is required for this transaction
+4. Debit Card - Card Number: 5063776858007413, Expiration Date: 12/21, Security Code: 347, Account balance = 31860
+5. Credit Card - Card Number: 1186334928403925, Expiration Date: 02/25, Security Code: 179, Limit = 2500
+6. B - First it asks you to input the card number. Make sure the string length is 16. And if you type in letter the system will continue but obviously the system will not work
+7. B - Then it asks for the expiration date in the form of MM/YY, although you could enter in M/YY or MMYY and the system will allow it
+8. B - Then it asks for a valid 3 digit security code. Our security codes have to at least start with the number 1, but other than that it can be any 3 numbers
+9. Here is the point where it verifies that your card information is all correct, and checks that the card is indeed active. If any of the information is wrong that it will ask for the same info all over again
+10. It is also here the point where if the system recognizes your card but that you declared type where it switches the type for you and you can re enter in the same information
+11. B - Then it gives you 3 different options for vendors. First if you know the vendor ID (which you do not need to) it will ask for the vendor ID. Otherwise then you can choose option 2 where you can search for vendors based on the name, giving you the ID and name based on your search result. If that yields what you want, you can then enter 1 and select the ID, otherwise if your vendor is not stored, you will need to create a new vendor
+12. B - For this step, let’s create a new vendor of Swift Burn Hot Sauce. So first you will enter 2 and type in the letter s and hit the enter key. There you will see a lot of results of different companies that start with the letter s, but not the company we are looking for. As a result, you will then enter in the number 3 where you will then create the vendor. There you will just enter in the name and then it will give you back the vendor ID that was created
+13. B - Now to end you will have to enter in the purchase amount. If this is a negative number it will kick you back to the menu, but in the case of creating a vendor your vendor will still be created. Then if the purchase exceeds either your limit or goes below your minimum balance for the card, then the purchase will be rejected and you will be forced back to main menu. If the amount is valid though the transaction will succeed and you will be sent back to main menu
+Batch Menu Options
+1. Next lets take a look at the batch menu options. These behave quite simply and were done just for fun to show off a little bit of PL/SQL so there are not required to really look at
+2. B - Here you will see a menu for 3 options, each doing a different thing
+3. The first option just checks to see if any card has expired, and if one has then it makes it not active. Pretty simple
+4. The 2nd option gives everyone interest on their savings for the year. It is key to note that this will increase balances very fast and also that there is not transaction trail for the interest since we are not reporting to the IRS. So the customer just gets free money from us
+5. The last option is an option that should never be hit, but if it is then every credit card in our system will run a running balance of 0 no matter how much it is, so it is just what is says, massive debt forgiveness
+6. Then after those you may exit
+Quit and Help option
+1. These are pretty self explanatory. The quit exits the system from running. The help statement simply prints out a statement to help the user if they are confused
+Ways to try and break it
+1. If at any point you do Control + D, then you will fail the scanner and the system will exit
+2. If there is a false SQL statement that oracle does not accept anywhere in the code, then it will automatically close the connection and exit to prevent any further damage being done
+3. If you do not enter in your credentials correct on start up then it will ask to either try again or quit
+4. I cannot think of any other areas where it may consistently force the user out of the system. If the issue is an input error than the it will exit with the scanner message. If it’s an sql error than it will exit with the sql error message. If is a runtime exception than there is a glaring flaw in my code that I completely missed, and if there is any null pointer then I have no idea how that happened as the only place where there is a null it catches the exception as a login error at the very least, so if you manage to be able to throw another error based on just the input I control I do really applaud you as I have tested this program for a long time trying to find something and was unable to.
+
+General Thoughts/Notes
+- MOST IMPORTANT: I decided to do most of my implementation and interface design through Java. Now this was not done because I like Java better, but because I know from past people who took this course that you allow them to post our code on Github for potential employers to see. As a result, I know that they only thing I would really be able to upload is my Java code, so with this in mind, I decided to show off much more Java skills which is why all my code is in Java. I did create PL/SQL batch methods to prove that I did think of it and did not ignore it, but these were just for fun that were interesting to do.
+- You will notice at points that if the amount is too much, too little, not correct, not the input we asked for, instead of asking the user again for better input it will send them back to the main menu. This was done on purpose as I wanted to in my interface discourage bad input, so if you do perform an input we do not want in our system, you will be forced back through the entire process one more
+- The main change I would make with my design is simply storing more information, so like separating the address, adding a SSN, and a bunch of other information that could prove useful at some point. I could have gone into a lot more detail with the attributes, and if implementing for an enterprise would make sure with my team I would go into detail for each different attribute we may need. However, this project I tried to just do the bare minimum in terms of attributes to make the interface more interactive and easier to use as well as easier to implement for myself. I have no doubt with more time I could have really upped the detail, but due to a busy semester I was unable to fully implement in my opinion on a complete set of attributes by the deadline, but I was able to do the bare minimum for the database design to be good and very functional
+- I could have OOP’s the project a bit more than I did, especially for purchase and deposit and withdrawal, but I actually do think my implementation is a happy medium of being broken down in methods, but also working in a linear method that is easy to use
+- The GeneralMethods class was my favorite class as it made this project 10x easier than it could have been, especially with the way I structured those methods
+- I wanted to include all the options coming soon to show what the full implementation would look like
+- I have no idea how my project stacks up against my peers, so I hope my design, data and interface are well enough to score very well as I put in a lot of time into this project, but know there are some fantastic programmers in the course as well so I don’t feel my project is the best out of all of the smart people in our class
+
+
+Assumptions/Future Plans: For this part I am going to walk through each part of the interface and list out my assumptions for certain design decisions I made as well as what should be done in the future
+
+- Main Menu
+    - After you enter in your database credentials, you will be greeted with the title at the top, your ATM/Teller ID below that and a menu with each interface option below
+        - The ATM/Teller ID is simply random and not enforced later where you can enter in any ID
+            - This was done because since it is random I did not want to force the user to create the transaction for that ID, giving the current user more flexibility
+            - In future development every system should have its own ID based on launching it and the location
+    - The interface options then lead you to as follows depending on what you type in
+- 1. Bank Management
+    - Was not able to develop. As a result the future plans is to simply pull up data on each part of the bank. That being all loan data, card data, account data, teller data, etc…
+    - You should ask future management what statistics they would like in order to see what their design may be. They should be the guiding force on how you implement this interface
+- 2. Account Deposit and Withdrawal
+    - Here there are a lot of assumptions that this interface needed. The first step is to declare whether the transaction you are performing is a Deposit or a Withdrawal as a normal bank would
+        - Reason for this step is so I personally know what transaction needs to be performed in which table, otherwise I do not know and cannot update the database
+    - If the transaction is a withdrawal it then asks you if you are performing it at an ATM or a Teller
+        - Since a withdrawal can happen at both locations, it was better to declare what it was before
+        - Again, this should be automatic in future implementations
+    - The next step is to ask if you are performing the transaction on a savings or checking account
+        - Makes my search easier throughout if they choose a checking or savings account
+        - Could have allowed the user to just search for account and grab this info, however my implementation was simpler for what I wanted to do
+    - The next step is asking you for you customer ID, where after you type in a valid ID prints out the accounts under that ID
+        - This adds a layer of security and searches for all the accounts under your name for the given type of account, so it ends up being a Win-Win
+        - In the future a customer should have a password to verify that it is indeed them. This could be done as soon as the application is launched or for each part, that is for future management to decide as either way works
+    - Next you choose a Valid Account Number that is under your name
+    - Next you choose a Teller/ATM ID based on what type you chose earlier. The prompt will remember
+    - Lastly, you enter in the transaction amount
+        - It is key to note that the prompt asks for a positive number for a deposit and a negative integer for a withdrawal
+            - The reason for this was based on my implementation of the database. I would like to say that this should be changed in the future to just positive for both, and then making the subsequent changes in the interface, but due to my data that was already added to the database, this felt unfeasible to correct given the deadline, so as a result I asked for positive and negative numbers
+            -  It kicks the user back to main menu without a transaction if you enter in a negative number for a deposit and vice versa for a withdrawal
+                - This was simply done for fun and to discourage the user from trying any funny business in the interface
+	- One other interesting and purposeful "bug" is that for each transaction you are below the minimum balance, it will charge you a $47 fee. So even if you deposit money, if you are below the minimum balance another fee will hit. This was done because I thought it was good to toture those who overwithdraw. It is also important to note that a debit card will just decline the transaction
+    - It then prints out a success message and returns you to the main menu
+- 3. Payment on Loan/Credit Card
+    - Was not able to develop. As a result in the future it should take the monthly payment for loan and the amount due value from credit card and do the payment transaction through an account
+    - Was mainly unable to implement given the way my columns in the database are setup is that the running balance should transfer to the amount due at the end of the month, which is a batch control and as a result did not make sense to implement in this project
+        - Another reason was my loan monthlyPayment was simply created by taking the loan amount and dividing by 100, so that is not at all an accurate representation of what a Loan payment should look like at all and so I did not want to use this kind of data as a result. Was better to spend my time on other places
+- 4. Open a new account
+    - First it asks if you are opening a checking or savings account
+        - Standard question given you are created a new account
+    - Next it displays the default values you are assigned when you create an account
+        - These values should be different based on the different tiers of accounts for each, but since the current database only has checking and savings accounts its okay for now to have default values
+        - There should be an application process to change these default values
+        - In the future should have different types of accounts
+    - It then asks for your customer ID
+        - This means the database requires you to be a current customer already
+        - Should have an interface to create new customers in the future, probably with its own separate interface
+    - It then gives you the next Account ID and for you to not forget it
+        - In actuality in the current interface you only need it for deposits and withdrawals, which query the information for you
+    -  Then you type in your initial deposit to the bank
+        - This does not allow you to be negative for obvious reasons
+        - This does not get reported as a transaction, as there was not a reason to do this given that the information should be able to get by reversing the transaction back to the original amount
+        - In the future would be a good idea to have a specialization of deposit for initial to declare when the deposit occurs and for how much
+    - Gives you a success message
+- 5. Obtain a new Credit or Debit Card
+    - Was not able to develop. Should in the future ask if they need to deactivate a card and change the active status if they do. Then generate the new card information and relate it to the customer and accounts that are needed in the future
+- 6. Take out a new loan
+    - First prompts if you are taking out a mortgage or a general loan
+    - If a mortgage is chosen then it asks for an address
+        - The address column is stored as a single string. This should be changed to multiple parts in the future for address but I wanted to keep it a single string for simplicity sake
+    - Then asks for you customer ID
+    - Then gives you your new loan ID and asks you to not forget it
+        - This is not used in any other interface but should still not be forgotten still as it may be in the payment interface at a later date
+    - Then you ask for the amount of money you would like to be loaned
+        - There is a limit to how much you can loan out. Needs to be at least $1000, or under $50,000,000 otherwise the loan will not even be approved for you and it will kick you back to main menu
+    - It then prompts for your credit score to get an idea of what your interest rate will look like
+        - Says we will check with the credit agencies, which you should, but given the scope this just simply has an method to assign rates based on that credit score, with a min of 3% and a max of 10%. And of course the interface does not actually check with a credit agency although it should
+    - Finally, it prompts if you would like to accept the loan at that interest rate for that amount
+        - Asks for a yes or y, if anything else kicks you back to main menu
+            - Wanted to make it simple for this question, either yes or no
+        - If yes says success, if no then it says loan was not created
+    - 7. Make purchase with card
+        - First it asks for the type of card you have
+            - In the future should be able to automatically detect this based on your card number, but for now easier to prompt the user
+        - Then, you will be asked to type in a card number
+            - Does not allow you to type anything over or under 16 characters
+        - Then the expiration month in MM/YY format
+            - Rejects a lot of other formats
+        - Then the security code
+            - For extra security, it should also ask for name on card and address. However, for this implementation I did not have a billing address attribute in Card and did not want to ask for the name as it felt like an extra line that was not needed
+        - After that you are left with 3 options for vendor, first is if you know the vendor ID, second is if you think the vendor is already in the system, third is to create a new vendor
+            - Each of these options feel fair for the unrealistic purchase method on this interface, so having all 3 available will really benefit the customer
+        - If you decide to search for a vendor Id it prompts for a keyword to search on name
+        - If you decide to create a new vendor, it prompts for a name assigns it a vendor Id number which you should remember in the futures but can always search for later
+        - Otherwise, you just simply type in the vendor ID
+        - Then it asks for the purchase amount
+            - Here is should be a positive number, rejects and sends back to the main menu to punish people who put negative numbers
+            - Here after it takes the amount, it makes sure based on either the limit or the account balance that there is sufficient funds. If there is not then the purchase is rejected and the user is sent back to the main menu
+    - B. Batch controls
+        - These are a few procedures I wrote for fun to show off my PL/SQL, will not go into detail about them. You can try them out but are just fun features for my project
+    - Q. Quit
+        - Do not need to explain
+    - H. Help
+        - Prints a quick help statement for the user. Does nothing more
+
+
+Thank you for reading my long README. I hope it was sufficient and thank you for your effort in looking at my CSE 341 Project. It is greatly appreciated.
+
+FIN.

@@ -1,0 +1,260 @@
+Current simple Relational Design
+
+-- means primary key
+
+customer(--customer_id, name, phone_number, address, start_date)
+bank_account(--account_id, acct_balance, date_created)
+cus_accounts(--customer_id, --account_id)
+savings(--account_id, interest_rate)
+checking(--account_id, min_balance)
+loan(--loan_id, interest, amount_owed, monthly_payment, start_date)
+mortgage(--loan_id, house_location)
+card(--card_number, expiration, security_code, date_created, active)
+credit_card(--card_number, interest_percent, limit, running_balance, amount_due, last_payment)
+debit_card(--card_number)
+cus_card(--customer_id, --card_number)
+debit(--account_id, --card_number)
+transaction(--transaction_id, amount, time)
+bank_transaction(--transaction_id)
+external(--transaction_id)
+teller(--transaction_id)
+payment(--transaction_id)
+credit_payment(--transaction_id, --card_number)
+withdrawal(--transaction_id, --account_id)
+deposit(--transaction_id, --account_id)
+debt(--customer_id, --loan_id)
+purchase(--transaction_id, --card_number)
+loan_payment(--transaction_id, --loan_id)
+bank_payment(--transaction_id, --account_id)
+
+---------------------------------------------------------------------------
+DDL Commands
+== is a relation that probably need more constraints but i did not add them at the time
+
+create table customer(
+customer_id number(9, 0),
+name varchar(20),
+phone_number varchar(15),
+address varchar (50),
+start_date date,
+primary key (customer_id)
+);
+
+create table bank_account(
+account_id number(12, 0),
+acct_balance number(38, 2),
+date_created date,
+primary key(account_id)
+);
+
+== create table cus_accounts(
+customer_id number(9, 0) not null,
+account_id number(12, 0) not null,
+primary key (customer_id, account_id),
+foreign key (customer_id) references customer on delete cascade,
+foreign key (account_id) references bank_account on delete cascade
+);
+
+create table checking(
+account_id number (12, 0) not null,
+min_balance number (38, 2),
+primary key (account_id),
+foreign key (account_id) references bank_account on delete cascade
+);
+
+create table savings(
+account_id number (12, 0) not null,
+interest_rate number (38, 2),
+primary key (account_id),
+foreign key (account_id) references bank_account on delete cascade
+);
+
+create table loan(
+loan_id number (12, 0),
+interest number (38, 2),
+amount_owed number (38, 2),
+monthly_payment number (38, 2),
+start_date date,
+primary key (loan_id)
+);
+
+create table mortgage(
+loan_id number (12, 0) not null,
+house_location varchar(50),
+primary key (loan_id),
+foreign key (loan_id) references loan on delete cascade
+);
+
+create table card(
+card_number varchar(16),
+expiration date,
+security_code number (3, 0),
+date_created date,
+primary key (card_number)
+);
+
+create table credit_card(
+card_number varchar(16) not null,
+interest_percent number(38, 2),
+limit number (38, 2),
+running_balance number (38, 2),
+amount_due number (38, 2),
+last_payment date,
+primary key (card_number),
+foreign key (card_number) references card on delete cascade
+);
+
+create table debit_card(
+card_number varchar(16) not null,
+primary key (card_number),
+foreign key (card_number) references card on delete cascade
+);
+
+== create table cus_card(
+customer_id number(9, 0) not null,
+card_number varchar(16) not null,
+primary key (customer_id, card_number),
+foreign key (customer_id) references customer on delete cascade,
+foreign key (card_number) references card on delete cascade
+);
+
+==create table debit(
+account_id number(12, 0) not null,
+card_number varchar(16) not null,
+primary key (account_id, card_number),
+foreign key (account_id) references bank_account on delete cascade,
+foreign key (card_number) references card on delete cascade
+);
+
+create table transaction(
+transaction_id number(38, 0),
+amount number(38, 2),
+time TIMESTAMP WITH TIME ZONE,
+primary key (transaction_id)
+);
+
+create table bank_transaction(
+transaction_id number(38, 0),
+branch_id number (12, 0),
+primary key (transaction_id),
+foreign key (transaction_id) references transaction on delete cascade
+);
+
+create table external(
+transaction_id number(38, 0),
+vendor_id number (12, 0),
+vendor_name varchar(50)
+primary key (transaction_id),
+foreign key (transaction_id) references transaction on delete cascade
+);
+
+create table teller_transaction(
+transaction_id number(38, 0),
+teller_id number (12, 0),
+primary key (transaction_id),
+foreign key (transaction_id) references transaction on delete cascade
+);
+
+create table payment(
+transaction_id number(38, 0),
+primary key (transaction_id),
+foreign key (transaction_id) references transaction on delete cascade
+);
+
+== create table credit_payment(
+transaction_id number(38, 0) not null,
+card_number varchar(16) not null,
+primary key(transaction_id, card_number),
+foreign key (transaction_id) references payment on delete cascade,
+foreign key (card_number) references credit_card on delete cascade
+);
+
+== create table withdrawal (
+transaction_id  number(38, 0) not null,
+account_id number (12, 0) not null,
+primary key (transaction_id, account_id),
+foreign key (transaction_id) references bank_transaction on delete cascade,
+foreign key (account_id) references bank_account on delete cascade
+);
+
+== create table deposit (
+transaction_id  number(38, 0) not null,
+account_id number (12, 0) not null,
+primary key (transaction_id, account_id),
+foreign key (transaction_id) references teller on delete cascade,
+foreign key (account_id) references bank_account on delete cascade
+);
+
+== create table debt(
+loan_id number (12, 0) not null,
+customer_id number (9, 0) not null,
+primary key (loan_id, customer_id),
+foreign key (loan_id) references loan on delete cascade,
+foreign key (customer_id) references customer on delete cascade
+);
+
+== create table purchase(
+transaction_id number(38, 0) not null,
+card_number varchar(16) not null,
+primary key(transaction_id, card_number),
+foreign key (transaction_id) references external on delete cascade,
+foreign key (card_number) references card on delete cascade
+);
+
+== create table loan_payment (
+transaction_id number (38, 0) not null,
+loan_id number (12, 0) not null,
+primary key (transaction_id, loan_id),
+foreign key (transaction_id) references payment on delete cascade,
+foreign key (loan_id) references loan on delete cascade
+);
+
+== create table bank_payment (
+transaction_id number (38, 0) not null,
+account_id number (12, 0) not null ,
+primary key (transaction_id, account_id),
+foreign key (transaction_id) references payment on delete cascade,
+foreign key (account_id) references bank_account on delete cascade
+);
+
+create table vendor (
+vendor_id number (12, 0),
+vendor_name varchar(50),
+primary key (vendor_id)
+); 
+
+Create table bank(
+branch_id number (12, 0),
+bank_location varchar(50),
+primary key (branch_id)
+);
+
+Create table teller(
+teller_id number (12, 0),
+teller_location varchar(50),
+primary key (teller_id)
+);
+
+==Create table companies (
+transaction_id number (38, 0) not null,
+vendor_id number (12, 0) not null,
+Primary key (transaction_id)
+Foreign key (transaction_id) references external on delete cascade,
+Foreign key (vendor_id) references vendor on delete set null
+);
+
+==Create table bank_location (
+transaction_id number (38, 0) not null,
+branch_id number (12, 0) not null,
+Primary key (transaction_id)
+Foreign key (transaction_id) references bank_transaction on delete cascade,
+Foreign key (branch_id) references teller on delete set null
+);
+
+== create table teller_location (
+transaction_id number (38, 0) not null,
+teller_id number (12, 0) not null,
+Primary key (transaction_id),
+Foreign key (transaction_id) references teller_transaction on delete cascade,
+Foreign key (teller_id) references teller on delete set null
+);
